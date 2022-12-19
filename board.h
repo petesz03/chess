@@ -6,7 +6,7 @@ class TextDisplay;
 
 class Board{
 
-    std::vector<std::vector> board;
+    std::vector<std::vector<char>> board;
     public:
 
     Board();
@@ -17,8 +17,7 @@ class Board{
     //   vector coordinates:
     Posn convertToVec(std::string command);
 
-    void movePiece(char player, char piece, std::string ogLocation, std::string destination);
-    char isLegal(char piece, Posn og, Posn destination)
+    void movePiece(char piece, std::string ogLocation, std::string destination);
     void placePiece(char piece, Posn position);
     char locate(Posn position);
     bool ownPiece();

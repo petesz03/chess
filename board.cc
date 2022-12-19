@@ -36,10 +36,10 @@ Board::Board(){
 // Converts a chessboard location to a 
 //   vector coordinates:
 Posn Board::convertToVec(std::string command){
-    int row = std::stoi(command[0]);
+    int row = command[0] - 'a';
     char col = command[1];
 
-    Posn temp = {row - 1, col - 'a'};
+    Posn temp = {row, col - 'a'};
     return temp;
 }
 
@@ -79,7 +79,7 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
     /********** Pawn **********/
     if (piece == 'p'){
         // Moving vertically:
-        Posn temp = {start.y + 1, start.x}
+        Posn temp = {start.y + 1, start.x};
         if (dest == temp && locate(temp) == ' '){
             placePiece(' ', start);
             placePiece('p', dest);
@@ -87,26 +87,26 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
         }
         // Taking, and moving diagonally:
         temp = {start.y + 1, start.x + 1};
-        if (dest == temp && isUpper(locate(temp))){
+        if (dest == temp && isupper(locate(temp))){
             // Checking if there is an opponent's piece at temp:
             placePiece(' ', start);
             placePiece('p', dest);
             return;
         }
         temp = {start.y + 1, start.x - 1};
-        if (dest == temp && isUpper(locate(temp))){
+        if (dest == temp && isupper(locate(temp))){
             // Checking if there is an opponent's piece at temp:
             placePiece(' ', start);
             placePiece('p', dest);
             return;
         }
         else{
-            std::cout << "That is an invalid move for Pawn" << endl;
+            std::cout << "That is an invalid move for Pawn" << std::endl;
             return;
         }
     }
     else if (piece == 'P'){
-        Posn temp = {start.y - 1, start.x}
+        Posn temp = {start.y - 1, start.x};
         if (dest == temp && locate(temp) == ' '){
             placePiece(' ', start);
             placePiece('P', dest);
@@ -115,20 +115,20 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
         // Taking, and moving diagonally:
         temp = {start.y - 1, start.x + 1};
         // Checking if there is an opponent's piece at temp:
-        if (dest == temp && isLower(locate(temp))){
+        if (dest == temp && islower(locate(temp))){
             placePiece(' ', start);
             placePiece('p', dest);
             return;
         }
         temp = {start.y - 1, start.x - 1};
         // Checking if there is an opponent's piece at temp:
-        if (dest == temp && isLower(locate(temp))){
+        if (dest == temp && islower(locate(temp))){
             placePiece(' ', start);
             placePiece('p', dest);
             return;
         }
         else{
-            std::cout << "That is an invalid move for Pawn" << endl;
+            std::cout << "That is an invalid move for Pawn" << std::endl;
             return;
         }
     }
@@ -175,11 +175,11 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
         }
         // Take or there is your own piece there?
         char curr = locate(dest);
-        if (piece == 'r' && isLower(curr)){
+        if (piece == 'r' && islower(curr)){
             std::cout << "Cannot move there, your own piece is there!" << std::endl;
             return;
         }
-        else if (piece == 'R' && isUpper(curr)){
+        else if (piece == 'R' && isupper(curr)){
             std::cout << "Cannot move there, your own piece is there!" << std::endl;
         }
         else{
@@ -233,11 +233,11 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
 
         // Take or there is your own piece there?
         char curr = locate(dest);
-        if (piece == 'b' && isLower(curr)){
+        if (piece == 'b' && islower(curr)){
             std::cout << "Cannot move there, your own piece is there!" << std::endl;
             return;
         }
-        else if (piece == 'B' && isUpper(curr)){
+        else if (piece == 'B' && isupper(curr)){
             std::cout << "Cannot move there, your own piece is there!" << std::endl;
         }
         else{
@@ -258,17 +258,17 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
         if (abs(numMovesX) == 1 && abs(numMovesY) == 2){}
         else if (abs(numMovesX) == 2 && abs(numMovesY) == 1){}
         else{
-            std::cour << "That is not a valid move for Knight!" << std::endl;
+            std::cout << "That is not a valid move for Knight!" << std::endl;
             return;
         }
         // Knight do not have to check if there are anything along the way:
         // Take or there is your own piece there?
         char curr = locate(dest);
-        if (piece == 'k' && isLower(curr)){
+        if (piece == 'k' && islower(curr)){
             std::cout << "Cannot move there, your own piece is there!" << std::endl;
             return;
         }
-        else if (piece == 'K' && isUpper(curr)){
+        else if (piece == 'K' && isupper(curr)){
             std::cout << "Cannot move there, your own piece is there!" << std::endl;
         }
         else{
@@ -317,11 +317,11 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
             }
             // Take or there is your own piece there?
             char curr = locate(dest);
-            if (piece == 'q' && isLower(curr)){
+            if (piece == 'q' && islower(curr)){
                 std::cout << "Cannot move there, your own piece is there!" << std::endl;
                 return;
             }
-            else if (piece == 'Q' && isUpper(curr)){
+            else if (piece == 'Q' && isupper(curr)){
                 std::cout << "Cannot move there, your own piece is there!" << std::endl;
             }
             else{
@@ -365,11 +365,11 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
 
             // Take or there is your own piece there?
             char curr = locate(dest);
-            if (piece == 'q' && isLower(curr)){
+            if (piece == 'q' && islower(curr)){
                 std::cout << "Cannot move there, your own piece is there!" << std::endl;
                 return;
             }
-            else if (piece == 'Q' && isUpper(curr)){
+            else if (piece == 'Q' && isupper(curr)){
                 std::cout << "Cannot move there, your own piece is there!" << std::endl;
             }
             else{
@@ -391,17 +391,17 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
         int numMovesY = start.y - dest.y;
 
         if (abs(numMovesX) != 1 && abs(numMovesY) != 1){
-            std::cour << "That is not a valid move for Knight!" << std::endl;
+            std::cout << "That is not a valid move for Knight!" << std::endl;
             return;
         }
         // Knight do not have to check if there are anything along the way:
         // Take or there is your own piece there?
         char curr = locate(dest);
-        if (piece == 'w' && isLower(curr)){
+        if (piece == 'w' && islower(curr)){
             std::cout << "Cannot move there, your own piece is there!" << std::endl;
             return;
         }
-        else if (piece == 'W' && isUpper(curr)){
+        else if (piece == 'W' && isupper(curr)){
             std::cout << "Cannot move there, your own piece is there!" << std::endl;
         }
         else{
@@ -412,16 +412,12 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
     
 };
 
-bool Board::isLegal(char piece, Posn og, Posn destination){
-    
-}
-
 /*
 void Board::setTextDisplay(TextDisplay* display){
     textdisplay = display;
 }
 
-/****** Attach and detach for pieces *****
+****** Attach and detach for pieces *****
 void Board::attach(Piece* piece){
     pieces.push_back(piece);
 }
