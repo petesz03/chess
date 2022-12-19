@@ -1,1 +1,7 @@
 
+p, P = Pawns
+q, Q = Queens
+r, R = Rook
+b, B = Bishop
+w, W = King
+

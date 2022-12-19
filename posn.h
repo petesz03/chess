@@ -1,8 +1,8 @@
 
 struct Posn{
-    int row, col;
+    int x, y;
 
-    Posn(int row, int col): row{row}, col{col} {}
+    Posn(int x, int y): x{x}, y{y} {}
     ~Posn(){}
 
     // == operator overload for comparison:

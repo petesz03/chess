@@ -1,41 +1,26 @@
 #include "piece.h"
 #include <vector>
 #include "posn.h"
+#include <string>
 
 class TextDisplay;
 
 class Board{
 
-    std::vector<Piece* > pieces;
-    TextDisplay* textdisplay;
-    // Opponent is needed for checking legal move purposes
-    //   i.e. Pawns can only move diagonally when taking:
-    Board* opponent;
-
+    std::vector<std::vector> board;
     public:
-    Board(Board* opponent): opponentBoard{opponent} {}
-    ~Board(){
-        for (auto it = pieces.begin(); it != pieces.end(); it++){
-            delete *it; 
-            // *it is the pointer to the piece since it will first dereference it.
-            *it = nullptr;
-        }
-        delete textdisplay;
-    }
 
-    void setTextDisplay(TextDisplay* display);
+    Board();
+    // Everything is stack allocated:
+    ~Board(){}
 
-    void getOpponent();
-    void setOpponent(Board* op);
+    // Converts a chessboard location to a 
+    //   vector coordinates:
+    Posn convertToVec(std::string command);
 
-    // Attaches and detaches the piece onto the vector pieces in Board:
-    void attach(Piece* piece);
-    void detach(Piece* piece);
-
-    // movePiece should search through "pieces" and look for the correct Piece to move,
-    //   then it will call the move function for that specific piece,
-    //   Must also check if either posn is outside of the bounds:
-    void movePiece(Posn pieceAt, Posn pieceTo);
-    Piece* pieceAt(Posn pieceAt);
-
+    void movePiece(char player, char piece, std::string ogLocation, std::string destination);
+    void isLegal(char piece, Posn og, Posn destination)
+    void placePiece(char piece, Posn position);
+    char locate(Posn position);
+    bool ownPiece()
 };
