@@ -76,7 +76,7 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
     }
 
     // Move according to piece:
-    /********** PAWN **********/
+    /********** Pawn **********/
     if (piece == 'p'){
         // Moving vertically:
         Posn temp = {start.y + 1, start.x}
@@ -279,8 +279,108 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
 
     /********* Queen *********/
     else if (piece == 'Q' || piece == 'q'){
-        // Repetitive code?
-        // Create fns to simply code??
+        int numMovesX = start.x - dest.x;
+        int numMovesY = start.y - dest.y;
+        // Moving horizontally:
+        if (numMovesX == 0 || numMovesY == 0){
+            if (start.y > dest.y){
+                for (int i = dest.y; i < start.y; i++){
+                    if (board[start.x][i] != ' '){
+                        std::cout << "There are pieces along the way" << std::endl;
+                        return;
+                    }
+                }
+            }
+            else if (start.y < dest.y){
+                for (int i = start.y; i < dest.y; i++){
+                    if (board[start.x][i] != ' '){
+                        std::cout << "There are pieces along the way" << std::endl;
+                        return;
+                    }
+                }
+            }
+            else if (start.x > dest.x){
+                for (int i = dest.y; i < start.x; i++){
+                    if (board[i][start.y] != ' '){
+                        std::cout << "There are pieces along the way" << std::endl;
+                        return;
+                    }
+                }
+            }
+            else if (start.x < dest.x){
+                for (int i = start.y; i < dest.x; i++){
+                    if (board[i][start.y] != ' '){
+                        std::cout << "There are pieces along the way" << std::endl;
+                        return;
+                    }
+                }
+            }
+            // Take or there is your own piece there?
+            char curr = locate(dest);
+            if (piece == 'q' && isLower(curr)){
+                std::cout << "Cannot move there, your own piece is there!" << std::endl;
+                return;
+            }
+            else if (piece == 'Q' && isUpper(curr)){
+                std::cout << "Cannot move there, your own piece is there!" << std::endl;
+            }
+            else{
+                placePiece(' ', start);
+                placePiece(piece, dest);
+            }
+        }
+        else if (numMovesX == numMovesY){
+            if (numMovesX > 0 && numMovesY > 0){
+                for (int i = 1; i < abs(numMovesX); i++){
+                    if (board[dest.x + i][dest.y + i] != ' '){
+                        std::cout << "There are pieces along the way!" << std::endl;
+                        return;
+                    }
+                }
+            }
+            if (numMovesX < 0 && numMovesY > 0){
+                for (int i = 1; i < abs(numMovesX); i++){
+                    if (board[start.x + i][dest.y + i] != ' '){
+                        std::cout << "There are pieces along the way!" << std::endl;
+                        return;
+                    }
+                }
+            }
+            if (numMovesX > 0 && numMovesY < 0){
+                for (int i = 1; i < abs(numMovesX); i++){
+                    if (board[dest.x + i][start.y + i] != ' '){
+                        std::cout << "There are pieces along the way!" << std::endl;
+                        return;
+                    }
+                }
+            }
+            if (numMovesX < 0 && numMovesY < 0){
+                for (int i = 1; i < abs(numMovesX); i++){
+                    if (board[start.x + i][start.y + i] != ' '){
+                        std::cout << "There are pieces along the way!" << std::endl;
+                        return;
+                    }
+                }
+            }
+
+            // Take or there is your own piece there?
+            char curr = locate(dest);
+            if (piece == 'q' && isLower(curr)){
+                std::cout << "Cannot move there, your own piece is there!" << std::endl;
+                return;
+            }
+            else if (piece == 'Q' && isUpper(curr)){
+                std::cout << "Cannot move there, your own piece is there!" << std::endl;
+            }
+            else{
+                placePiece(' ', start);
+                placePiece(piece, dest);
+            }
+        }\
+        else{
+            std::cout << "That is not a valid move for Queen" << std::endl;
+        }
+        
     }
     
     /******** King **********/
@@ -310,10 +410,10 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
         }     
     }
     
-}
+};
 
-void Board::isLegal(char piece, Posn og, Posn destination){
-
+bool Board::isLegal(char piece, Posn og, Posn destination){
+    
 }
 
 /*

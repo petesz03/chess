@@ -1,4 +1,3 @@
-#include "piece.h"
 #include <vector>
 #include "posn.h"
 #include <string>
@@ -19,8 +18,10 @@ class Board{
     Posn convertToVec(std::string command);
 
     void movePiece(char player, char piece, std::string ogLocation, std::string destination);
-    void isLegal(char piece, Posn og, Posn destination)
+    char isLegal(char piece, Posn og, Posn destination)
     void placePiece(char piece, Posn position);
     char locate(Posn position);
-    bool ownPiece()
+    bool ownPiece();
+
+
 };
