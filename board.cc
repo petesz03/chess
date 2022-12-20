@@ -36,8 +36,8 @@ Board::Board(){
 // Converts a chessboard location to a 
 //   vector coordinates:
 Posn Board::convertToVec(std::string command){
-    int row = command[0] - 'a';
-    char col = command[1];
+    int row = command[1] - '1';
+    char col = command[0];
 
     Posn temp = {row, col - 'a'};
     return temp;
@@ -79,22 +79,28 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
     /********** Pawn **********/
     if (piece == 'p'){
         // Moving vertically:
-        Posn temp = {start.y + 1, start.x};
+        Posn temp = {start.x - 1, start.y};
         if (dest == temp && locate(temp) == ' '){
             placePiece(' ', start);
             placePiece('p', dest);
             return;
         }
+	temp = {start.x - 2, start.y};
+	if (dest == temp && locate(temp) == ' '){
+            placePiece(' ', start);
+            placePiece('p', dest);
+            return;
+        }
         // Taking, and moving diagonally:
-        temp = {start.y + 1, start.x + 1};
+        temp = {start.x - 1, start.y + 1};
         if (dest == temp && isupper(locate(temp))){
             // Checking if there is an opponent's piece at temp:
             placePiece(' ', start);
             placePiece('p', dest);
             return;
         }
-        temp = {start.y + 1, start.x - 1};
-        if (dest == temp && isupper(locate(temp))){
+        temp = {start.x - 1, start.y - 1};
+        if (temp.x == 5 && dest == temp && isupper(locate(temp))){
             // Checking if there is an opponent's piece at temp:
             placePiece(' ', start);
             placePiece('p', dest);
@@ -106,25 +112,31 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
         }
     }
     else if (piece == 'P'){
-        Posn temp = {start.y - 1, start.x};
+        Posn temp = {start.x + 1, start.y};
         if (dest == temp && locate(temp) == ' '){
             placePiece(' ', start);
             placePiece('P', dest);
             return;
         }
-        // Taking, and moving diagonally:
-        temp = {start.y - 1, start.x + 1};
-        // Checking if there is an opponent's piece at temp:
-        if (dest == temp && islower(locate(temp))){
+	temp = {start.x + 2, start.y};
+        if (temp.x == 4 && dest == temp && locate(temp) == ' '){
             placePiece(' ', start);
-            placePiece('p', dest);
+            placePiece('P', dest);
             return;
         }
-        temp = {start.y - 1, start.x - 1};
+        // Taking, and moving diagonally:
+        temp = {start.x + 1, start.y + 1};
         // Checking if there is an opponent's piece at temp:
         if (dest == temp && islower(locate(temp))){
             placePiece(' ', start);
-            placePiece('p', dest);
+            placePiece('P', dest);
+            return;
+        }
+        temp = {start.x + 1, start.y - 1};
+        // Checking if there is an opponent's piece at temp:
+        if (dest == temp && islower(locate(temp))){
+            placePiece(' ', start);
+            placePiece('P', dest);
             return;
         }
         else{
@@ -137,12 +149,12 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
 
         // The two locations are not on the same line, return:
         if (dest.x != start.x && dest.y != start.y){
-            std::cout << "That is an invalid move for Pawn" << std::endl;
+            std::cout << "That is an invalid move for Rook" << std::endl;
             return;
         }
 
         if (start.y > dest.y){
-            for (int i = dest.y; i < start.y; i++){
+            for (int i = dest.y + 1; i < start.y; i++){
                 if (board[start.x][i] != ' '){
                     std::cout << "There are pieces along the way" << std::endl;
                     return;
@@ -150,7 +162,7 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
             }
         }
         else if (start.y < dest.y){
-            for (int i = start.y; i < dest.y; i++){
+            for (int i = start.y + 1; i < dest.y; i++){
                 if (board[start.x][i] != ' '){
                     std::cout << "There are pieces along the way" << std::endl;
                     return;
@@ -158,7 +170,7 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
             }
         }
         else if (start.x > dest.x){
-            for (int i = dest.y; i < start.x; i++){
+            for (int i = dest.y + 1; i < start.x; i++){
                 if (board[i][start.y] != ' '){
                     std::cout << "There are pieces along the way" << std::endl;
                     return;
@@ -166,7 +178,7 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
             }
         }
         else if (start.x < dest.x){
-            for (int i = start.y; i < dest.x; i++){
+            for (int i = start.y + 1; i < dest.x; i++){
                 if (board[i][start.y] != ' '){
                     std::cout << "There are pieces along the way" << std::endl;
                     return;
@@ -292,7 +304,7 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
                 }
             }
             else if (start.y < dest.y){
-                for (int i = start.y; i < dest.y; i++){
+                for (int i = start.y + 1; i < dest.y; i++){
                     if (board[start.x][i] != ' '){
                         std::cout << "There are pieces along the way" << std::endl;
                         return;
@@ -300,7 +312,7 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
                 }
             }
             else if (start.x > dest.x){
-                for (int i = dest.y; i < start.x; i++){
+                for (int i = dest.y + 1; i < start.x; i++){
                     if (board[i][start.y] != ' '){
                         std::cout << "There are pieces along the way" << std::endl;
                         return;
@@ -308,7 +320,7 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
                 }
             }
             else if (start.x < dest.x){
-                for (int i = start.y; i < dest.x; i++){
+                for (int i = start.y + 1; i < dest.x; i++){
                     if (board[i][start.y] != ' '){
                         std::cout << "There are pieces along the way" << std::endl;
                         return;

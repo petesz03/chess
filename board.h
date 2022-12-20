@@ -1,3 +1,6 @@
+#ifndef _BOARD_
+#define _BOARD_
+
 #include <vector>
 #include "posn.h"
 #include <string>
@@ -24,3 +27,5 @@ class Board{
 
 
 };
+
+#endif

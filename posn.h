@@ -1,4 +1,5 @@
-
+#ifndef _POSN_
+#define _POSN_
 struct Posn{
     int x, y;
 
@@ -9,4 +10,8 @@ struct Posn{
 
     bool operator==(Posn posn);
     bool valid();
+
 };
+
+#endif
+
