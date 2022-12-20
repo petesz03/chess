@@ -5,9 +5,9 @@
 class TextDisplay;
 
 class Board{
-
-    std::vector<std::vector<char>> board;
+    
     public:
+    std::vector<std::vector<char>> board;
 
     Board();
     // Everything is stack allocated:
