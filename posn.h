@@ -1,9 +1,9 @@
 #ifndef _POSN_
 #define _POSN_
 struct Posn{
-    int x, y;
+    int row, col;
 
-    Posn(int x, int y): x{x}, y{y} {}
+    Posn(int row, int col): row{row}, col{col} {}
     ~Posn(){}
 
     // == operator overload for comparison:

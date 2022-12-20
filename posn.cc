@@ -1,9 +1,9 @@
 #include "posn.h"
 
 bool Posn::operator==(Posn posn){
-        return (x == posn.x && y == posn.y);
+        return (row == posn.row && col == posn.col);
 }
 
 bool Posn::valid(){
-        return (x >= 0 && x <= 7 && y >= 0 && y <= 7);
+        return (row >= 0 && row <= 7 && col >= 0 && col <= 7);
 }

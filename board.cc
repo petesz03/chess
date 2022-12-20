@@ -29,7 +29,7 @@ Board::Board(){
     std::vector<char> temp3 = {'p','p','p','p','p','p','p','p'};
     board.push_back(temp3);
     // Row 8:
-    std::vector<char> temp4 = {'r','k','b','w','q','r','k','r'};
+    std::vector<char> temp4 = {'r','k','b','w','q','b','k','r'};
     board.push_back(temp4);
 }
 
@@ -37,225 +37,228 @@ Board::Board(){
 //   vector coordinates:
 Posn Board::convertToVec(std::string command){
     int row = command[1] - '1';
-    char col = command[0];
-
-    Posn temp = {row, col - 'a'};
+    char col;
+    if (isupper(command[0])){
+        col = command[0] - 'A';
+    } else{
+        col = command[0] - 'a';
+    }
+    
+    Posn temp = {row, col};
     return temp;
 }
 
 void Board::placePiece(char piece, Posn position){
-    int x = position.x;
-    int y = position.y;
-    board[x][y] = piece;
+    int row = position.row;
+    int col = position.col;
+    board[row][col] = piece;
 }
 
 char Board::locate(Posn position){
-    int x = position.x;
-    int y = position.y;
-    return board[x][y];
+    int row = position.row;
+    int col = position.col;
+    return board[row][col];
+}
+
+// Not very efficient:
+bool Board::dangerCheck(char piece, Posn loc){
+    if (islower(piece)){
+        for (int row = 0; row <= 7; row++){
+            for (int col = 0; col <= 7; col++){
+                if (isupper(board[row][col])){
+                    Posn temp = {row, col};
+                    if (isLegal(board[row][col], temp, loc)){ return true; }
+                }
+            }
+        }
+    }
+    else{
+        for (int row = 0; row <= 7; row++){
+            for (int col = 0; col <= 7; col++){
+                if (islower(board[row][col])){
+                    Posn temp = {row, col};
+                    if (isLegal(board[row][col], temp, loc)){ return true; }
+                }
+            }
+        }
+    }
+    return false;
+
+}
+// Can only enter w or W:
+bool Board::kingInDanger(char piece){
+    if (islower(piece)){
+        Posn temp = {-1,-1};
+        for (int row = 0; row <= 7; row++){
+            for (int col = 0; col <= 7; col++){
+                if (board[row][col] == 'w'){ temp = {row, col};}
+            }
+        }
+        if (temp.row == -1 && temp.col == -1){
+            std::cout << "Bad checking" << std::endl;
+            return false;
+        }
+        else{
+            return (dangerCheck('w',temp));
+        }
+    }
+    else if (isupper(piece)){
+        Posn temp = {-1,-1};
+        for (int row = 0; row <= 7; row++){
+            for (int col = 0; col <= 7; col++){
+                if (board[row][col] == 'W'){ temp = {row, col};}
+            }
+        }
+        if (temp.row == -1 && temp.col == -1){
+            std::cout << "Bad checking" << std::endl;
+            return false;
+        }
+        else{
+            return (dangerCheck('W',temp));
+        }
+    }
+    return false;
 }
 void Board::movePiece(char piece, std::string ogLocation, std::string destination){
-    // Logic:
-    // If there are multiple of the same type of piece that can
-    //   move there, ask the user to indicate which one it wants
-    //   to move:
     Posn start = convertToVec(ogLocation);
     Posn dest = convertToVec(destination);
+    char og = locate(start);
+    char de = locate(dest);
+
+    if (isLegal(piece, start, dest)){
+        placePiece(' ', start);
+        placePiece(piece, dest);
+    }
+    else{
+        std::cout << "That is not a legal move!" << std::endl;
+    }
+    // Check if the king is still in check after the move:
+    if (islower(piece) && kingInDanger('w')){
+        // Undo changes:
+        placePiece(og, start);
+        placePiece(de, dest);
+        std::cout << "Your King will be taken!" << std::endl;
+    }
+    else if (isupper(piece) && kingInDanger('W')){
+        // Undo changes:
+        placePiece(og, start);
+        placePiece(de, dest);
+        std::cout << "Your King is still in check!" << std::endl;
+    }
+    return;
+};
+
+bool Board::isLegal(char piece, Posn start, Posn dest){
+    
+    // Constants for efficiency:
+    int startRow = start.row;
+    int startCol = start.col;
+    int destRow = dest.row;
+    int destCol = dest.col;
     // Error checking first:
-    if (piece != locate(start)){
-        std::cout << "That piece is not there!" << std::endl;
-        return;
-    }
-    else if (start == dest){
-        std::cout << "You are not moving any pieces!" << std::endl;
-        return;
-    }
-    else if (!start.valid() || !dest.valid()){
-        std::cout << "Those are not valid positions";
-        return;
-    }
+    if (piece != locate(start)){ return false;}
+    else if (start == dest){ return false; }
+    else if (!start.valid() || !dest.valid()){ return false; }
 
     // Move according to piece:
     /********** Pawn **********/
     if (piece == 'p'){
         // Moving vertically:
-        Posn temp = {start.x - 1, start.y};
-        if (dest == temp && locate(temp) == ' '){
-            placePiece(' ', start);
-            placePiece('p', dest);
-            return;
-        }
-	temp = {start.x - 2, start.y};
-	if (dest == temp && locate(temp) == ' '){
-            placePiece(' ', start);
-            placePiece('p', dest);
-            return;
-        }
+        Posn temp = {startRow - 1, startCol};
+        if (dest == temp && locate(temp) == ' '){ return true; }
+	    temp = {startRow - 2, startCol};
+	    if (temp.row == 4 && dest == temp && locate(temp) == ' '){ return true; }
+
         // Taking, and moving diagonally:
-        temp = {start.x - 1, start.y + 1};
-        if (dest == temp && isupper(locate(temp))){
-            // Checking if there is an opponent's piece at temp:
-            placePiece(' ', start);
-            placePiece('p', dest);
-            return;
-        }
-        temp = {start.x - 1, start.y - 1};
-        if (temp.x == 5 && dest == temp && isupper(locate(temp))){
-            // Checking if there is an opponent's piece at temp:
-            placePiece(' ', start);
-            placePiece('p', dest);
-            return;
-        }
-        else{
-            std::cout << "That is an invalid move for Pawn" << std::endl;
-            return;
-        }
+        temp = {startRow - 1, startCol + 1};
+        if (dest == temp && isupper(locate(temp))){ return true; }
+        temp = {startRow - 1, startCol - 1};
+        if (temp.row == 4 && dest == temp && isupper(locate(temp))){ return true; }
+        else{ return false; }
     }
     else if (piece == 'P'){
-        Posn temp = {start.x + 1, start.y};
-        if (dest == temp && locate(temp) == ' '){
-            placePiece(' ', start);
-            placePiece('P', dest);
-            return;
-        }
-	temp = {start.x + 2, start.y};
-        if (temp.x == 4 && dest == temp && locate(temp) == ' '){
-            placePiece(' ', start);
-            placePiece('P', dest);
-            return;
-        }
+        Posn temp = {startRow + 1, startCol};
+        if (dest == temp && locate(temp) == ' '){ return true; }
+	    temp = {startRow + 2, startCol};
+        if (temp.row == 3 && dest == temp && locate(temp) == ' '){ return true; }
+
         // Taking, and moving diagonally:
-        temp = {start.x + 1, start.y + 1};
+        temp = {startRow + 1, startCol + 1};
         // Checking if there is an opponent's piece at temp:
-        if (dest == temp && islower(locate(temp))){
-            placePiece(' ', start);
-            placePiece('P', dest);
-            return;
-        }
-        temp = {start.x + 1, start.y - 1};
+        if (dest == temp && islower(locate(temp))){ return true;}
+
+        temp = {startRow + 1, startCol - 1};
         // Checking if there is an opponent's piece at temp:
-        if (dest == temp && islower(locate(temp))){
-            placePiece(' ', start);
-            placePiece('P', dest);
-            return;
-        }
-        else{
-            std::cout << "That is an invalid move for Pawn" << std::endl;
-            return;
-        }
+        if (dest == temp && islower(locate(temp))){ return true; }
+        else{ return false; }
     }
     /********* ROOK ***********/
     else if (piece == 'r' || piece == 'R'){
 
         // The two locations are not on the same line, return:
-        if (dest.x != start.x && dest.y != start.y){
-            std::cout << "That is an invalid move for Rook" << std::endl;
-            return;
-        }
+        if (destRow != startRow && destCol != startCol){ return false; }
 
-        if (start.y > dest.y){
-            for (int i = dest.y + 1; i < start.y; i++){
-                if (board[start.x][i] != ' '){
-                    std::cout << "There are pieces along the way" << std::endl;
-                    return;
-                }
+        if (startCol > destCol){
+            for (int i = destCol + 1; i < startCol; i++){
+                if (board[startRow][i] != ' '){ return false; }
             }
         }
-        else if (start.y < dest.y){
-            for (int i = start.y + 1; i < dest.y; i++){
-                if (board[start.x][i] != ' '){
-                    std::cout << "There are pieces along the way" << std::endl;
-                    return;
-                }
+        else if (startCol < destCol){
+            for (int i = startCol + 1; i < destCol; i++){
+                if (board[startRow][i] != ' '){ return false; }
             }
         }
-        else if (start.x > dest.x){
-            for (int i = dest.y + 1; i < start.x; i++){
-                if (board[i][start.y] != ' '){
-                    std::cout << "There are pieces along the way" << std::endl;
-                    return;
-                }
+        else if (startRow > destRow){
+            for (int i = destCol + 1; i < startCol; i++){
+                if (board[i][startCol] != ' '){ return false; }
+
             }
         }
-        else if (start.x < dest.x){
-            for (int i = start.y + 1; i < dest.x; i++){
-                if (board[i][start.y] != ' '){
-                    std::cout << "There are pieces along the way" << std::endl;
-                    return;
-                }
+        else if (startRow < destRow){
+            for (int i = startRow + 1; i < destRow; i++){
+                if (board[i][startCol] != ' '){ return false; }
             }
         }
         // Take or there is your own piece there?
         char curr = locate(dest);
-        if (piece == 'r' && islower(curr)){
-            std::cout << "Cannot move there, your own piece is there!" << std::endl;
-            return;
-        }
-        else if (piece == 'R' && isupper(curr)){
-            std::cout << "Cannot move there, your own piece is there!" << std::endl;
-        }
-        else{
-            placePiece(' ', start);
-            placePiece(piece, dest);
-        }
+        if (piece == 'r' && islower(curr)){ return false; }
+        else if (piece == 'R' && isupper(curr)){ return false; }
+        else{ return true; }
     }
 
     /********** Bishop *********/
     else if (piece == 'b' || piece == 'B'){
         // Check if start and dest is on the same diagonal:
-        if (start.x - dest.x != start.y - dest.y){
-            std::cout << "That is not a valid move for Bishop!" << std::endl;
-            return;
-        }
-
-        int numMovesX = start.x - dest.x;
-        int numMovesY = start.y - dest.y;
+        if (abs(startRow - destRow) != abs(startCol - destCol)){ return false; }
+        int numMovesX = startRow - destRow;
+        int numMovesY = startCol - destCol;
         if (numMovesX > 0 && numMovesY > 0){
             for (int i = 1; i < abs(numMovesX); i++){
-                if (board[dest.x + i][dest.y + i] != ' '){
-                    std::cout << "There are pieces along the way!" << std::endl;
-                    return;
-                }
+                if (board[startRow - i][startCol - i] != ' '){ return false; }
             }
         }
         if (numMovesX < 0 && numMovesY > 0){
             for (int i = 1; i < abs(numMovesX); i++){
-                if (board[start.x + i][dest.y + i] != ' '){
-                    std::cout << "There are pieces along the way!" << std::endl;
-                    return;
-                }
+                if (board[startRow + i][startCol - i] != ' '){ return false; }
             }
         }
         if (numMovesX > 0 && numMovesY < 0){
+            
             for (int i = 1; i < abs(numMovesX); i++){
-                if (board[dest.x + i][start.y + i] != ' '){
-                    std::cout << "There are pieces along the way!" << std::endl;
-                    return;
-                }
+                if (board[startRow - i][startCol + i] != ' '){ return false; }
             }
         }
         if (numMovesX < 0 && numMovesY < 0){
             for (int i = 1; i < abs(numMovesX); i++){
-                if (board[start.x + i][start.y + i] != ' '){
-                    std::cout << "There are pieces along the way!" << std::endl;
-                    return;
-                }
+                if (board[startRow + i][startCol + i] != ' '){ return false; }
             }
         }
 
         // Take or there is your own piece there?
         char curr = locate(dest);
-        if (piece == 'b' && islower(curr)){
-            std::cout << "Cannot move there, your own piece is there!" << std::endl;
-            return;
-        }
-        else if (piece == 'B' && isupper(curr)){
-            std::cout << "Cannot move there, your own piece is there!" << std::endl;
-        }
-        else{
-            placePiece(' ', start);
-            placePiece(piece, dest);
-        }
+        if (piece == 'b' && islower(curr)){ return false; }
+        else if (piece == 'B' && isupper(curr)){ return false; }
+        else{ return true; }
     }
 
     /******** Knight ********/
@@ -264,165 +267,107 @@ void Board::movePiece(char piece, std::string ogLocation, std::string destinatio
         // 1. X value moves by 2 and Y value moves by 1
         // 2. X value moves by 1 and Y value moves by 2
 
-        int numMovesX = start.x - dest.x;
-        int numMovesY = start.y - dest.y;
+        int numMovesX = startRow - destRow;
+        int numMovesY = startCol - destCol;
 
         if (abs(numMovesX) == 1 && abs(numMovesY) == 2){}
         else if (abs(numMovesX) == 2 && abs(numMovesY) == 1){}
-        else{
-            std::cout << "That is not a valid move for Knight!" << std::endl;
-            return;
-        }
+        else{ return false; }
+
         // Knight do not have to check if there are anything along the way:
-        // Take or there is your own piece there?
+        // Take or there is your own piece there:
         char curr = locate(dest);
-        if (piece == 'k' && islower(curr)){
-            std::cout << "Cannot move there, your own piece is there!" << std::endl;
-            return;
-        }
-        else if (piece == 'K' && isupper(curr)){
-            std::cout << "Cannot move there, your own piece is there!" << std::endl;
-        }
-        else{
-            placePiece(' ', start);
-            placePiece(piece, dest);
-        }
+        if (piece == 'k' && islower(curr)){ return false; }
+        else if (piece == 'K' && isupper(curr)){ return false; }
+        else{ return true; }
     }
 
     /********* Queen *********/
     else if (piece == 'Q' || piece == 'q'){
-        int numMovesX = start.x - dest.x;
-        int numMovesY = start.y - dest.y;
+        int numMovesX = startRow - destRow;
+        int numMovesY = startCol - destCol;
         // Moving horizontally:
         if (numMovesX == 0 || numMovesY == 0){
-            if (start.y > dest.y){
-                for (int i = dest.y; i < start.y; i++){
-                    if (board[start.x][i] != ' '){
-                        std::cout << "There are pieces along the way" << std::endl;
-                        return;
-                    }
+            if (startCol > destCol){
+                for (int i = destCol; i < startCol; i++){
+                    if (board[startRow][i] != ' '){ return false; }
                 }
             }
-            else if (start.y < dest.y){
-                for (int i = start.y + 1; i < dest.y; i++){
-                    if (board[start.x][i] != ' '){
-                        std::cout << "There are pieces along the way" << std::endl;
-                        return;
-                    }
+            else if (startCol < destCol){
+                for (int i = startCol + 1; i < destCol; i++){
+                    if (board[startRow][i] != ' '){ return false; }
                 }
             }
-            else if (start.x > dest.x){
-                for (int i = dest.y + 1; i < start.x; i++){
-                    if (board[i][start.y] != ' '){
-                        std::cout << "There are pieces along the way" << std::endl;
-                        return;
-                    }
+            else if (startRow > destRow){
+                for (int i = destCol + 1; i < startRow; i++){
+                    if (board[i][startCol] != ' '){ return false; }
                 }
             }
-            else if (start.x < dest.x){
-                for (int i = start.y + 1; i < dest.x; i++){
-                    if (board[i][start.y] != ' '){
-                        std::cout << "There are pieces along the way" << std::endl;
-                        return;
-                    }
+            else if (startRow < destRow){
+                for (int i = startCol + 1; i < destRow; i++){
+                    if (board[i][startCol] != ' '){ return false; }
                 }
             }
             // Take or there is your own piece there?
             char curr = locate(dest);
-            if (piece == 'q' && islower(curr)){
-                std::cout << "Cannot move there, your own piece is there!" << std::endl;
-                return;
-            }
-            else if (piece == 'Q' && isupper(curr)){
-                std::cout << "Cannot move there, your own piece is there!" << std::endl;
-            }
-            else{
-                placePiece(' ', start);
-                placePiece(piece, dest);
-            }
+            if (piece == 'q' && islower(curr)){ return false; }
+            else if (piece == 'Q' && isupper(curr)){ return false; }
+            else{ return true; }
         }
-        else if (numMovesX == numMovesY){
+        else if (abs(startRow - destRow) != abs(startCol - destCol)){
             if (numMovesX > 0 && numMovesY > 0){
                 for (int i = 1; i < abs(numMovesX); i++){
-                    if (board[dest.x + i][dest.y + i] != ' '){
-                        std::cout << "There are pieces along the way!" << std::endl;
-                        return;
-                    }
+                    if (board[startRow - i][startCol - i] != ' '){ return false; }
                 }
             }
             if (numMovesX < 0 && numMovesY > 0){
                 for (int i = 1; i < abs(numMovesX); i++){
-                    if (board[start.x + i][dest.y + i] != ' '){
-                        std::cout << "There are pieces along the way!" << std::endl;
-                        return;
-                    }
+                    if (board[startRow + i][startCol - i] != ' '){ return false; }
                 }
             }
             if (numMovesX > 0 && numMovesY < 0){
                 for (int i = 1; i < abs(numMovesX); i++){
-                    if (board[dest.x + i][start.y + i] != ' '){
-                        std::cout << "There are pieces along the way!" << std::endl;
-                        return;
-                    }
+                    if (board[startRow - i][startCol + i] != ' '){ return false; }
                 }
             }
             if (numMovesX < 0 && numMovesY < 0){
                 for (int i = 1; i < abs(numMovesX); i++){
-                    if (board[start.x + i][start.y + i] != ' '){
-                        std::cout << "There are pieces along the way!" << std::endl;
-                        return;
-                    }
+                    if (board[startRow + i][startCol + i] != ' '){ return false; }
                 }
             }
 
             // Take or there is your own piece there?
             char curr = locate(dest);
-            if (piece == 'q' && islower(curr)){
-                std::cout << "Cannot move there, your own piece is there!" << std::endl;
-                return;
-            }
-            else if (piece == 'Q' && isupper(curr)){
-                std::cout << "Cannot move there, your own piece is there!" << std::endl;
-            }
-            else{
-                placePiece(' ', start);
-                placePiece(piece, dest);
-            }
-        }\
-        else{
-            std::cout << "That is not a valid move for Queen" << std::endl;
+            if (piece == 'q' && islower(curr)){ return false; }
+            else if (piece == 'Q' && isupper(curr)){ return false; }
+            else{ return true; }
         }
-        
+        else{ return false; }
     }
     
     /******** King **********/
     else if (piece == 'W' || piece == 'w'){
         // For the move to be valid for king, the difference
         //   between the x and the y value can only be 1:
-        int numMovesX = start.x - dest.x;
-        int numMovesY = start.y - dest.y;
+        int numMovesX = startRow - destRow;
+        int numMovesY = startCol - destCol;
 
         if (abs(numMovesX) != 1 && abs(numMovesY) != 1){
-            std::cout << "That is not a valid move for Knight!" << std::endl;
-            return;
+            return false;
         }
         // Knight do not have to check if there are anything along the way:
         // Take or there is your own piece there?
         char curr = locate(dest);
         if (piece == 'w' && islower(curr)){
-            std::cout << "Cannot move there, your own piece is there!" << std::endl;
-            return;
+            return false;
         }
         else if (piece == 'W' && isupper(curr)){
-            std::cout << "Cannot move there, your own piece is there!" << std::endl;
+            return false;
         }
-        else{
-            placePiece(' ', start);
-            placePiece(piece, dest);
-        }     
+        else{ return true; } 
     }
-    
-};
+    else{ return false; }
+}
 
 /*
 void Board::setTextDisplay(TextDisplay* display){

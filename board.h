@@ -21,6 +21,11 @@ class Board{
     Posn convertToVec(std::string command);
 
     void movePiece(char piece, std::string ogLocation, std::string destination);
+    bool isLegal(char piece, Posn start, Posn dest);
+    // Check if a piece can be taken by any other piece:
+    bool dangerCheck(char piece, Posn loc);
+    bool kingInDanger(char piece);
+
     void placePiece(char piece, Posn position);
     char locate(Posn position);
     bool ownPiece();
