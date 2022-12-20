@@ -5,6 +5,6 @@ class TextDisplay{
 
     public:
     TextDisplay(Board* subject): subject{subject}{}
-
+    
     void render();
 };
