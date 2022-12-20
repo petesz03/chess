@@ -1,5 +1,8 @@
 Chess engine:
 
+Explanation:
+1. To move a piece, type "move [character of the piece] [original position, i.e. A5] [destination, i.e. G4]"
+
 Part 1: Implement board, legal moving, checkmating, and player vs player functionality
 
 Part 2: Implement bot with strategies.
