@@ -8,8 +8,10 @@
 class TextDisplay;
 
 class Board{
-    
-    public:
+  public:
+    // toMove = true for White, false for Black
+    bool toMove, whiteCastle, blackCastle;
+    size_t draw50; // counter for 50 move draw
     std::vector<std::vector<char>> board;
 
     Board();

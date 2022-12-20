@@ -1,4 +1,6 @@
 #include "board.h"
+#include "piece.h"
+
 #include <iostream>
 #include <string>
 
@@ -7,31 +9,19 @@ Board::Board(){
     //   the bottom is the white piece to facilitate 1 - 8 
     //   increments. 
 
-    // Note that capital letters are whites piece
-    // Lower letters are black pieces:
-    // Note that W and w are Kings 
+    // White := UPPER CASE, Black := LOWER CASE
 
-    // Row 1:
-    std::vector<char> temp = {'R','K','B','W','Q','B','K','R'};
-    board.push_back(temp);
-    // Row 2:
-    std::vector<char> temp2 = {'P','P','P','P','P','P','P','P'};
-    board.push_back(temp2);
-    for (int i = 0; i <= 3; i++){
-        std::vector<char> temporary;
-        for (int j = 0; j <= 7; j++){
-            char tempChar = ' ';
-            temporary.push_back(tempChar);
-        }
-        board.push_back(temporary);
+    board.emplace_back(R, N, B, K, Q, B, N, R); // Row 1
+    board.emplace_back(P, P, P, P, P, P, P, P); // Row 2
+    for (int r = 2; r <= 5; r++) {
+        board.emplace_back(EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY);
     }
-    // Row 7:
-    std::vector<char> temp3 = {'p','p','p','p','p','p','p','p'};
-    board.push_back(temp3);
-    // Row 8:
-    std::vector<char> temp4 = {'r','k','b','w','q','b','k','r'};
-    board.push_back(temp4);
+    board.emplace_back(p, p, p, p, p, p, p, p); // Row 7
+    board.emplace_back(r, n, b, k, q, b, n, r); // Row 8
 }
+
+// will need a second Board() ctor given a board and a move or smth
+
 
 // Converts a chessboard location to a 
 //   vector coordinates:
